@@ -84,7 +84,7 @@ router.put("/:id", (req, res) => {
   const { title, contents } = req.body;
   if (!title || !contents) {
     res.status(400).json({
-      message: "Please provide title and content for this post",
+      message: "Please provide title and contents for the post",
     });
   } else {
     Post.findById(req.params.id)
@@ -107,7 +107,7 @@ router.put("/:id", (req, res) => {
       })
       .catch((err) => {
         res.status(500).json({
-          message: "The posts information could not be retrieved",
+          message: "The post information could not be modified",
           err: err.message,
           stack: err.stack,
         });
@@ -115,6 +115,24 @@ router.put("/:id", (req, res) => {
   }
 });
 
-router.get("/:id/messages", (req, res) => {});
+router.get("/:id/messages", async (req, res) => {
+    try{
+    const post = await Post.findById(req.params.id);
+        if (!post) {
+          res.status(404).json({
+            message: "The post with the specified ID does not exist",
+          });
+        } else {
+            const messages = await Post.findPostComments(req.params.id)
+            console.log(messages)
+        }
+    } catch (err){
+        res.status(500).json({
+            message: "The comments information could not be retrieved",
+            err: err.message,
+            stack: err.stack,
+          });
+    }
+});
 
 module.exports = router;
